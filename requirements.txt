@@ -1,0 +1,8 @@
+flask
+requests
+pandas
+numpy
+torch
+transformers
+scikit-learn
+beautifulsoup4  

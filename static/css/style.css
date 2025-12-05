@@ -1,0 +1,159 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px 0;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+main {
+    width: 90%;
+    max-width: 1000px;
+    padding: 20px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#tickerInput {
+    padding: 10px;
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #16a085;
+}
+
+.results-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.card {
+    border: 1px solid #ecf0f1;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.header-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #bdc3c7;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+.timestamp {
+    font-size: 0.8em;
+    color: #7f8c8d;
+}
+
+/* Decision Card Styling */
+.decision-card {
+    text-align: center;
+    padding: 20px;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.decision-label {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.action {
+    font-size: 2.5em;
+    margin: 0;
+    font-weight: 900;
+}
+
+.action-buy {
+    background-color: #27ae60; /* Green */
+}
+
+.action-sell {
+    background-color: #e74c3c; /* Red */
+}
+
+.action-hold {
+    background-color: #f39c12; /* Orange/Yellow */
+}
+
+/* Sentiment Breakdown */
+.sentiment-scores {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+}
+
+.sentiment-scores p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.sentiment-scores .score {
+    display: block;
+    font-weight: normal;
+    font-size: 1.2em;
+    margin-top: 5px;
+    color: #3498db;
+}
+
+.news-summary ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.news-summary li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #ecf0f1;
+    font-size: 0.9em;
+}
+
+.news-summary li:last-child {
+    border-bottom: none;
+}
+
+#loading, #error {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2em;
+    color: #34495e;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-weight: bold;
+}

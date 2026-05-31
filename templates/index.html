@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Stock Action Agent</title>
+    <!-- Circular Favicon -->
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <!-- Google Fonts & FontAwesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Main SaaS Dashboard Layout -->
+    <div class="saas-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-wand-magic-sparkles brand-icon"></i>
+                <div class="brand-text">
+                    <h2>AI Stock</h2>
+                    <span>Action Agent</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="api" id="navApiTab">
+                    <i class="fa-solid fa-terminal"></i>
+                    <span>Developer API</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="billing" id="navBillingTab">
+                    <i class="fa-solid fa-credit-card"></i>
+                    <span>Billing & Plans</span>
+                </a>
+            </nav>
+            
+            <!-- Sidebar User Card -->
+            <div class="sidebar-user-card" id="userCard" style="display: none;">
+                <div class="user-avatar">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="user-details">
+                    <h4 id="userDisplayName">Developer</h4>
+                    <span id="userTierBadge" class="badge-free">Free Tier</span>
+                </div>
+                <button class="logout-btn" onclick="handleLogout()" title="Sign Out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Body Panel -->
+        <main class="main-panel">
+            
+            <!-- Global Top bar -->
+            <header class="topbar">
+                <div class="topbar-title">
+                    <h1 id="pageTitle">AI Stock Action Agent</h1>
+                    <p id="pageSubTitle">Real-time deep learning sentiment decisions</p>
+                </div>
+                
+                <div class="topbar-actions">
+                    <div class="quota-progress-container" id="quotaProgressBox" style="display: none;">
+                        <div class="quota-text">
+                            <span>Daily Quota: <strong id="quotaSpent">0</strong> / <span id="quotaMax">5</span></span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="quotaProgressBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="authBtn" onclick="openAuthModal()">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Tab -->
+            <div class="tab-content active" id="tab-dashboard">
+                
+                <!-- Welcome Banner / Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon bg-cyan"><i class="fa-solid fa-server"></i></div>
+                        <div class="metric-info">
+                            <span>System Status</span>
+                            <h4>Active</h4>
+                        </div>
+                        <span class="status-pulse pulse-green"></span>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon bg-indigo"><i class="fa-solid fa-brain"></i></div>
+                        <div class="metric-info">
+                            <span>Inference Engine</span>
+                            <h4 id="activeEngineText">FinBERT Fallback</h4>
+                        </div>
+                        <span class="status-pulse pulse-blue"></span>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon bg-amber"><i class="fa-solid fa-chart-column"></i></div>
+                        <div class="metric-info">
+                            <span>Total Logs Logged</span>
+                            <h4 id="totalUserRequestsText">0</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Console -->
+                <div class="console-card card">
+                    <div class="console-header">
+                        <h3><i class="fa-solid fa-magnifying-glass-chart icon-accent"></i> News Sentiment Terminal</h3>
+                        <p>Select or input a financial ticker to trigger AI buy/sell/hold evaluations</p>
+                    </div>
+                    
+                    <div class="controls-row">
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-dollar-sign input-icon"></i>
+                            <input type="text" id="tickerInput" placeholder="Enter Ticker (e.g. NVDA, TSLA, MSFT)..." onkeydown="if(event.key === 'Enter') triggerAnalysis()">
+                        </div>
+                        <button class="btn btn-primary" onclick="triggerAnalysis()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Sentiment
+                        </button>
+                    </div>
+                    
+                    <!-- Quick-Select Ticker Tags -->
+                    <div class="ticker-tags">
+                        <span>Quick Analysis:</span>
+                        <button class="tag" onclick="selectTag('NVDA')">NVDA <i class="fa-solid fa-microchip tag-icon"></i></button>
+                        <button class="tag" onclick="selectTag('META')">META <i class="fa-solid fa-comments tag-icon"></i></button>
+                        <button class="tag" onclick="selectTag('AAPL')">AAPL <i class="fa-solid fa-mobile-screen-button tag-icon"></i></button>
+                        <button class="tag" onclick="selectTag('TSLA')">TSLA <i class="fa-solid fa-car tag-icon"></i></button>
+                        <button class="tag" onclick="selectTag('MSFT')">MSFT <i class="fa-solid fa-windows tag-icon"></i></button>
+                        <button class="tag" onclick="selectTag('AMZN')">AMZN <i class="fa-solid fa-cart-shopping tag-icon"></i></button>
+                        <button class="tag" onclick="selectTag('GOOGL')">GOOGL <i class="fa-solid fa-globe tag-icon"></i></button>
+                    </div>
+                </div>
+
+                <!-- Analysis Results Section (Initially Hidden) -->
+                <div id="analysisResult" class="results-layout" style="display: none;">
+                    
+                    <!-- Left: Decision Details -->
+                    <div class="results-left">
+                        <div class="card glass-card result-summary-card">
+                            <div class="result-ticker-header">
+                                <span class="result-badge" id="resultTickerBadge">NVDA</span>
+                                <span class="result-timestamp" id="resultTimestamp">Generated: Just Now</span>
+                            </div>
+                            
+                            <div class="decision-output-container" id="decisionContainer">
+                                <span>RECOMMENDED ACTION</span>
+                                <h2 id="decisionActionText">BUY</h2>
+                            </div>
+                            
+                            <div class="sentiment-chart-box">
+                                <h4>AI Sentiment Confidence (FinBERT)</h4>
+                                <div class="chart-container">
+                                    <canvas id="sentimentChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Analysis Details & Event -->
+                    <div class="results-right">
+                        <div class="card glass-card">
+                            <div class="card-title-row">
+                                <i class="fa-solid fa-newspaper text-indigo"></i>
+                                <h3>Key Market Event & Reasoning</h3>
+                            </div>
+                            <div class="event-pill" id="eventPill">
+                                <i class="fa-solid fa-circle-exclamation event-pill-icon"></i>
+                                <span id="keyEventText">High-Impact Product Launch</span>
+                            </div>
+                            <p class="reasoning-paragraph" id="reasoningText">
+                                High probability positive sentiment observed across multiple reports...
+                            </p>
+                        </div>
+                        
+                        <!-- News Articles List -->
+                        <div class="card glass-card news-articles-card">
+                            <div class="card-title-row">
+                                <i class="fa-solid fa-list-check text-cyan"></i>
+                                <h3>Processed Briefs (<span id="newsArticlesCount">0</span>)</h3>
+                            </div>
+                            <div class="news-list-container">
+                                <ul class="news-timeline" id="newsTimelineList">
+                                    <!-- Dynamic list items -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Indicators -->
+                <div id="dashboardLoading" class="loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <h3>Conducting AI Sentiment Analysis...</h3>
+                    <p>Fetching market updates and computing neural weights via FinBERT model...</p>
+                </div>
+
+                <!-- App Error State -->
+                <div id="dashboardError" class="error-state" style="display: none;">
+                    <i class="fa-solid fa-circle-exclamation error-icon"></i>
+                    <h3 id="errorTitle">Analysis Interrupted</h3>
+                    <p id="errorMessage">Please log in to analyze this stock or upgrade your plan to increase API access quotas.</p>
+                    <button class="btn btn-outline" id="errorActionBtn" onclick="openAuthModal()">Sign In</button>
+                </div>
+
+            </div>
+
+            <!-- Developer API Content Tab -->
+            <div class="tab-content" id="tab-api">
+                
+                <!-- API Gateway Manager -->
+                <div class="card console-card">
+                    <div class="console-header">
+                        <h3><i class="fa-solid fa-key icon-accent text-amber"></i> Developer API Tokens</h3>
+                        <p>Generate, reveal, and implement SaaS endpoints directly inside your applications</p>
+                    </div>
+                    
+                    <div class="api-key-manager-box">
+                        <div class="api-key-display">
+                            <input type="password" id="apiKeyInput" value="sk_live_00000000000000" readonly>
+                            <button class="btn-icon" onclick="toggleApiKey()" id="toggleKeyBtn" title="Reveal Key">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="copyApiKey()" title="Copy Key">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-outline" onclick="regenerateApiKey()">
+                            <i class="fa-solid fa-arrows-rotate"></i> Regenerate API Token
+                        </button>
+                    </div>
+                    
+                    <div class="api-endpoint-alert">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>All HTTP requests require your API token passed as the HTTP Header: <code>X-API-KEY: sk_live_...</code></span>
+                    </div>
+                </div>
+
+                <!-- Code Sandbox -->
+                <div class="card dev-sandbox-card">
+                    <div class="sandbox-header">
+                        <h3><i class="fa-solid fa-code text-indigo"></i> Endpoint Integration Sandbox</h3>
+                        <div class="sandbox-tabs">
+                            <button class="sandbox-tab active" onclick="switchSandboxTab('python')">Python</button>
+                            <button class="sandbox-tab" onclick="switchSandboxTab('curl')">cURL</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Python code panel -->
+                    <div class="sandbox-code-panel active" id="code-python">
+                        <pre><code><span class="code-kw">import</span> requests
+
+url = <span class="code-str">"http://127.0.0.1:5000/api/action/NVDA"</span>
+headers = {
+    <span class="code-str">"X-API-KEY"</span>: <span class="code-str">"<span class="api-key-placeholder">sk_live_...</span>"</span>
+}
+
+response = requests.get(url, headers=headers)
+data = response.json()
+print(data[<span class="code-str">"action"</span>], <span class="code-str">" - "</span>, data[<span class="code-str">"reasoning"</span>])</code></pre>
+                        <button class="btn-copy-code" onclick="copyCodeSnippet('python')"><i class="fa-solid fa-copy"></i> Copy Code</button>
+                    </div>
+                    
+                    <!-- cURL code panel -->
+                    <div class="sandbox-code-panel" id="code-curl">
+                        <pre><code>curl -X GET \
+  http://127.0.0.1:5000/api/action/NVDA \
+  -H 'X-API-KEY: <span class="api-key-placeholder">sk_live_...</span>'</code></pre>
+                        <button class="btn-copy-code" onclick="copyCodeSnippet('curl')"><i class="fa-solid fa-copy"></i> Copy Command</button>
+                    </div>
+                </div>
+
+                <!-- API Logs Analytics -->
+                <div class="logs-container-layout">
+                    <div class="card glass-card logs-table-card">
+                        <div class="card-title-row">
+                            <i class="fa-solid fa-list-check text-cyan"></i>
+                            <h3>Recent API Request Audits</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Endpoint</th>
+                                        <th>Ticker</th>
+                                        <th>Status Code</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="apiLogsTableBody">
+                                    <!-- Dynamic rows -->
+                                    <tr>
+                                        <td colspan="4" class="text-center">No recent request logs logged.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card glass-card logs-chart-card">
+                        <div class="card-title-row">
+                            <i class="fa-solid fa-chart-line text-amber"></i>
+                            <h3>7-Day Query Intensity</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="apiUsageTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Billing & Plans Content Tab -->
+            <div class="tab-content" id="tab-billing">
+                
+                <!-- Plan Status Card -->
+                <div class="card console-card billing-summary-card">
+                    <div class="billing-summary-content">
+                        <div>
+                            <span>ACTIVE PLAN</span>
+                            <h2 id="billingActivePlanText">Free Subscription Plan</h2>
+                            <p>For independent developers exploring market insights. Capped at 5 daily calls.</p>
+                        </div>
+                        <div class="billing-quota-indicator">
+                            <div class="donut-chart-box">
+                                <canvas id="quotaDonutChart"></canvas>
+                            </div>
+                            <div class="quota-summary-stats">
+                                <h3 id="billingQuotaSummaryText">0 / 5</h3>
+                                <span>Used Requests Today</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SaaS Plan Matrices -->
+                <h3 class="billing-grid-title">Available Subscription Upgrades</h3>
+                <div class="billing-plans-grid">
+                    
+                    <!-- Free Card -->
+                    <div class="plan-card" id="planCard-free">
+                        <div class="plan-badge">Standard</div>
+                        <h3 class="plan-name">Free Plan</h3>
+                        <div class="plan-price">
+                            <span class="currency">$</span>
+                            <span class="amount">0</span>
+                            <span class="period">/mo</span>
+                        </div>
+                        <p class="plan-desc">For testing and personal development portfolios.</p>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check text-green"></i> 5 requests per day</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Limited Tickers (AAPL, META)</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Browser access console</li>
+                            <li><i class="fa-solid fa-xmark text-red"></i> Third-party API header access</li>
+                            <li><i class="fa-solid fa-xmark text-red"></i> High-priority AI queues</li>
+                        </ul>
+                        <button class="btn btn-outline btn-block" disabled id="upgradeBtn-free">Active Plan</button>
+                    </div>
+                    
+                    <!-- Pro Card (Recommended) -->
+                    <div class="plan-card recommended" id="planCard-pro">
+                        <div class="plan-badge bg-primary">Best Value</div>
+                        <h3 class="plan-name">Pro License</h3>
+                        <div class="plan-price">
+                            <span class="currency">$</span>
+                            <span class="amount">49</span>
+                            <span class="period">/mo</span>
+                        </div>
+                        <p class="plan-desc">For active day traders and analytical dashboard developers.</p>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check text-green"></i> 100 requests per day</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Access to all premium tickers</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Developer API Keys</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Standard support queues</li>
+                            <li><i class="fa-solid fa-xmark text-red"></i> Custom dedicated inference</li>
+                        </ul>
+                        <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pro', 49)" id="upgradeBtn-pro">Upgrade to Pro</button>
+                    </div>
+                    
+                    <!-- Enterprise Card -->
+                    <div class="plan-card" id="planCard-enterprise">
+                        <div class="plan-badge bg-amber">Unlimited</div>
+                        <h3 class="plan-name">Enterprise Plan</h3>
+                        <div class="plan-price">
+                            <span class="currency">$</span>
+                            <span class="amount">199</span>
+                            <span class="period">/mo</span>
+                        </div>
+                        <p class="plan-desc">For large financial institutions and trading algorithms.</p>
+                        <ul class="plan-features">
+                            <li><i class="fa-solid fa-check text-green"></i> Unlimited daily requests</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Dedicated FinBERT GPU queues</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Developer API keys</li>
+                            <li><i class="fa-solid fa-check text-green"></i> 24/7 dedicated support</li>
+                            <li><i class="fa-solid fa-check text-green"></i> Custom ticker simulation loads</li>
+                        </ul>
+                        <button class="btn btn-outline btn-block" onclick="openCheckoutModal('enterprise', 199)" id="upgradeBtn-enterprise">Upgrade to Enterprise</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- AUTHENTICATION OVERLAY MODAL -->
+    <div id="authModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container glass-modal animate-scale-up">
+            <button class="modal-close-btn" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="modal-header">
+                <i class="fa-solid fa-user-lock auth-modal-icon"></i>
+                <h2 id="authModalTitle">Welcome to AI Stock Action Agent</h2>
+                <p id="authModalSubTitle">Sign in to initialize deep learning analytics</p>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group">
+                    <label for="authUsername"><i class="fa-solid fa-user"></i> Username</label>
+                    <input type="text" id="authUsername" required placeholder="Enter your username...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="authPassword"><i class="fa-solid fa-lock"></i> Password</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••">
+                </div>
+                
+                <div class="auth-error-alert" id="authErrorMsg" style="display: none;">
+                    Invalid credentials. Please try again.
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block" id="authSubmitBtn">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="auth-modal-footer">
+                <span id="authToggleText">Don't have an account? <a href="#" onclick="toggleAuthMode()">Create one</a></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STRIPE CREDIT CARD CHECKOUT MODAL -->
+    <div id="checkoutModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container glass-modal stripe-modal animate-scale-up">
+            <button class="modal-close-btn" onclick="closeCheckoutModal()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="stripe-modal-header">
+                <div class="stripe-logo">
+                    <i class="fa-brands fa-stripe-s"></i>
+                </div>
+                <div class="stripe-title">
+                    <h3>Secure Checkout</h3>
+                    <span>Powered by stripe</span>
+                </div>
+            </div>
+            
+            <div class="checkout-summary-box">
+                <div class="summary-line">
+                    <span id="checkoutPlanLabel">Pro Subscription Upgrade</span>
+                    <span class="price-val" id="checkoutPriceLabel">$49.00</span>
+                </div>
+                <div class="summary-line subtotal">
+                    <span>Amount Due Today</span>
+                    <span class="price-val" id="checkoutDueLabel">$49.00</span>
+                </div>
+            </div>
+            
+            <!-- Payment Form -->
+            <form id="checkoutForm" onsubmit="handleCheckoutSubmit(event)">
+                <div class="stripe-card-group">
+                    <div class="form-group border-bottom-0">
+                        <label for="cardNum"><i class="fa-regular fa-credit-card"></i> Card Number</label>
+                        <input type="text" id="cardNum" placeholder="4242 4242 4242 4242" required maxlength="19">
+                    </div>
+                    
+                    <div class="card-expiry-cvv">
+                        <div class="form-group border-right">
+                            <label for="cardExpiry"><i class="fa-regular fa-calendar-days"></i> Expiry</label>
+                            <input type="text" id="cardExpiry" placeholder="MM/YY" required maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardCvv"><i class="fa-solid fa-lock-open"></i> CVV</label>
+                            <input type="password" id="cardCvv" placeholder="123" required maxlength="4">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="auth-error-alert" id="checkoutErrorMsg" style="display: none;">
+                    Invalid card details. Check numbers.
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block btn-stripe" id="checkoutSubmitBtn">
+                    <i class="fa-solid fa-shield-halved"></i> Pay and Subscribe
+                </button>
+            </form>
+            
+            <div class="stripe-modal-footer">
+                <i class="fa-solid fa-lock"></i> Secured AES-256 data streams. Verified vendor.
+            </div>
+        </div>
+    </div>
+
+    <!-- STRIPE SUCCESS ANIMATED OVERLAY -->
+    <div id="successOverlay" class="modal-overlay success-overlay" style="display: none;">
+        <div class="success-card animate-scale-up">
+            <div class="checkmark-circle">
+                <i class="fa-solid fa-check checkmark"></i>
+            </div>
+            <h2>Upgrade Accomplished!</h2>
+            <p>Your Agent SaaS license has been upgraded. Thank you for subscribing!</p>
+            <button class="btn btn-primary btn-sm" onclick="closeSuccessOverlay()">Return to Terminal</button>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

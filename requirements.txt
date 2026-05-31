@@ -1,0 +1,10 @@
+flask
+requests
+pandas
+numpy
+torch
+transformers
+scikit-learn
+beautifulsoup4  
+pymongo[srv]
+python-dotenv

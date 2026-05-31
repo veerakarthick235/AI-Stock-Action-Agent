@@ -2,7 +2,6 @@
 
 ### Intelligent Financial Sentiment Terminal & Cloud Trading Insights Platform
 
-![StockAI Banner](static/favicon.png)
 
 ## 📌 Overview
 
